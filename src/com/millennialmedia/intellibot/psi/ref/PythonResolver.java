@@ -76,6 +76,12 @@ public class PythonResolver {
     // or add robot/library in project interpreter's path
     @Nullable
     public static PyClass findClass(@NotNull String name, @NotNull Project project) {
+        return findClass(name, project, true);
+
+    }
+
+    @Nullable
+    public static PyClass findClass(@NotNull String name, @NotNull Project project, boolean allowMatchByName) {
         if (!hasPython(project)) {
             return null;
         }
@@ -97,10 +103,10 @@ public class PythonResolver {
             }
 
             // save last match on full name should qualified name never match
-//            String className = pyClass.getName();
-//            if (className != null && className.equals(name)) {
-//                matchedByName = pyClass;
-//            }
+            String className = pyClass.getName();
+            if (className != null && className.equals(name)) {
+                matchedByName = pyClass;
+            }
         }
         // depending on PYTHONPATH, pyClass.getQualifiedName() may return BuiltIn.BuiltIn or robot.libraries.BuiltIn.BuiltIn,
         if (! name.startsWith("robot.libraries.")) {
@@ -118,9 +124,19 @@ public class PythonResolver {
                         return pyClass;
                     }
                 }
+//
+//                // save last match on full name should qualified name never match
+//                String className = pyClass.getName();
+//                if (className != null && className.equals(name)) {
+//                    matchedByName = pyClass;
+//                }
             }
         }
-        return matchedByName;
+        if (allowMatchByName) {
+            return matchedByName;
+        } else {
+            return null;
+        }
     }
 
     @NotNull
